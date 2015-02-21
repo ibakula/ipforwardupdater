@@ -24,15 +24,15 @@ generateFirewallPortRangeList() {
             local COUNT_TCP_PORTS=0
             for i in $TCP_PORTS_RANGE
             do
-                    ++COUNT_TCP_PORTS
-                    if [ $COUNT_TCP_PORTS == 2 ]
-                            LAST_TCP_PORT=i
+                    ((COUNT_TCP_PORTS++))
+                    if [ $COUNT_TCP_PORTS == 2 ]; then
+                            LAST_TCP_PORT=$i
                     else
-                            FIRST_TCP_PORT=i
+                            FIRST_TCP_PORT=$i
                     fi
             done
-            if [ COUNT_TCP_PORTS -eq 2 ] && [ FIRST_TCP_PORT -lt LAST_TCP_PORT ]; then
-                    for (( c=FIRST_TCP_PORT; c<=LAST_TCP_PORT; ++c)
+            if [ $COUNT_TCP_PORTS -eq 2 ] && [ $FIRST_TCP_PORT -lt $LAST_TCP_PORT ]; then
+                    for (( c=$FIRST_TCP_PORT; c<=$LAST_TCP_PORT; ++c ))
                     do
                             echo "-A PREROUTING -p tcp -m tcp --dport $c -j DNAT --to-destination $1:$c" >> $FIREWALL_RULES_PATH
                     done
@@ -44,19 +44,19 @@ generateFirewallPortRangeList() {
             local FIRST_UDP_PORT=0
             local LAST_UDP_PORT=0
             local COUNT_UDP_PORTS=0
-            for i in $UDP_PORTS_RANGE
+            for u in $UDP_PORTS_RANGE
             do
-                    ++COUNT_UDP_PORTS
-                    if [ $COUNT_UDP_PORTS == 2 ]
-                            LAST_UDP_PORT=i
+                    ((COUNT_UDP_PORTS++))
+                    if [ $COUNT_UDP_PORTS == 2 ]; then
+                            LAST_UDP_PORT=$u
                     else
-                            FIRST_UDP_PORT=i
+                            FIRST_UDP_PORT=$u
                     fi
             done
-            if [ COUNT_UDP_PORTS -eq 2 ] && [ FIRST_UDP_PORT -lt LAST_UDP_PORT ]; then
-                    for (( c=FIRST_UDP_PORT; c<=LAST_UDP_PORT; ++c)
+            if [ $COUNT_UDP_PORTS -eq 2 ] && [ $FIRST_UDP_PORT -lt $LAST_UDP_PORT ]; then
+                    for (( n=$FIRST_UDP_PORT; n<=$LAST_UDP_PORT; ++n ))
                     do
-                            echo "-A PREROUTING -p udp -m tcp --dport $c -j DNAT --to-destination $1:$c" >> $FIREWALL_RULES_PATH
+                            echo "-A PREROUTING -p udp -m udp --dport $n -j DNAT --to-destination $1:$n" >> $FIREWALL_RULES_PATH
                     done
             else
                     echo "UDP Ports range configured incorrectly and rules were not applied, it may only consist of 2 ports (start_port-end_port, where start_port < end_port)"
@@ -127,7 +127,7 @@ getCurrentTimeMinutes() {
 }
 
 loadConfig
-CURRENT_IP=$("getIp")
+CURRENT_IP="0.0.0.0"
 NEW_IP=$CURRENT_IP
 
 echo $(sendUpdateMessage)
